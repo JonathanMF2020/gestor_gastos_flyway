@@ -1,0 +1,29 @@
+version: '3.6'
+
+services:
+  basededatosgastos:
+    image: mysql/mysql-server
+    restart: always
+    environment:
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: '13298jona'
+      MYSQL_DATABASE: 'gestor_gastos'
+      MYSQL_ROOT_PASSWORD: '13298jona'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - '33096:3306'
+    expose:
+      - '3306'
+
+  dbmigration-sm-local:
+    image: flyway/flyway:latest-alpine
+    hostname: flyway
+    container_name: dbmigration-sm-local
+    depends_on:
+      - basededatosgastos
+    links:
+      - basededatosgastos
+    command: -connectRetries=10 -baselineOnMigrate=true -url=jdbc:mysql://basededatosgastos:3306/gestor_gastos?allowPublicKeyRetrieval=true -user=root -password=13298jona migrate
+    volumes:
+      - ./db:/flyway/sql
